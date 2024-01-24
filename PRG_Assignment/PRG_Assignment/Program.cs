@@ -1,10 +1,16 @@
-﻿//========================================================
+//========================================================
 // Student Number : S10258514
 // Student Name : Zhang Lixin
 // Partner Name : Borra Sri Venkata Surya Nanditha  
 //========================================================
 
 using PRG_Assignment;
+
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.Metrics;
+using Microsoft.Win32;
+
 
 List<string> options = new List<string> { "Cup", "Cone", "Waffle" };
 List<string> flavours = new List<string> { };
@@ -13,7 +19,8 @@ List<string> premiumFlavours = new List<string> { };
 List<string> waffleFlavours = new List<string> { "Original", "Red Velvet", "Charcoal", "Pandan Waffle" };
 Queue<Order> regularQueue = new();
 Queue<Order> goldQueue = new();
-List<Customer> customers = CreateCustomerList();
+List<Customer> customer = CreateCustomerList();
+List<Customer> customers = new List<Customer>(); //NANDITHA
 
 void DisplayMenu()
 {
@@ -34,40 +41,40 @@ while (!finish)
     try
     {
         DisplayMenu();
-        int choice;
+        int option;
         Console.Write("Enter your choice: ");
-        choice = int.Parse(Console.ReadLine());
-        if (choice == 1)
+        option = int.Parse(Console.ReadLine());
+        if (option == 1)
         {
-            ListCustomers(customers);
+            ListCustomers(customer);
         }
-        else if (choice == 2)
+        else if (option == 2)
+        {
+            Option2(customers);
+        }
+        else if (option == 3)
         {
             // code
             break;
         }
-        else if (choice == 3)
+        else if (option == 4)
         {
             // code
             break;
         }
-        else if (choice == 4)
+        else if (option == 5)
         {
             // code
             break;
         }
-        else if (choice == 5)
+        else if (option == 6)
         {
             // code
             break;
         }
-        else if (choice == 6)
+        else if (option == 0)
         {
-            // code
-            break;
-        }
-        else if (choice == 0)
-        {
+            Console.WriteLine("Exited.");
             finish = true;
             break;
         }
@@ -108,15 +115,43 @@ List<Customer> CreateCustomerList() // Create customer objects for each customer
     }
 }
 
-void ListCustomers(List<Customer> customers)
+void ListCustomers(List<Customer> customer)
 {
     Console.WriteLine("\n1. List all customers.");
     Console.WriteLine("{0,-10}{1,-15}{2,-18}{3,-25}{4,-30}{5,-35}", "Name", "MemberId", "DOB", "MembershipStatus", "MembershipPoints", "PunchCard");
     // Read and display each line of the file 
-    foreach (Customer customer1 in customers)
+    foreach (Customer customer1 in customer)
     {
         Console.WriteLine("{0,-10}{1,-15}{2,-18:dd/MM/yyyy}{3,-25}{4,-30}{5,-35}", customer1.Name, customer1.MemberId, customer1.Dob, customer1.Rewards.Tier, customer1.Rewards.Points, customer1.Rewards.PunchCard);
     }
+}
+
+// Option 2
+void Option2(List<Customer> customers)
+{
+    Console.WriteLine("");
+    Console.WriteLine("All Current Orders:");
+    string[] csvCustLines = File.ReadAllLines("customers.csv");
+    string[] member = csvCustLines[0].Split(',');
+
+    string[] csvOrdLines = File.ReadAllLines("orders.csv");
+    string[] heading = csvOrdLines[0].Split(',');
+
+    Console.WriteLine("{0,-2}  {1,-8}  {2,-16}  {3,-20}  {4,-18}",
+        heading[0], member[0], heading[1], heading[2], member[3]);
+
+    for (int i = 1; i < csvOrdLines.Length; i++)
+    {
+        string[] orderInfo = csvOrdLines[i].Split(',');
+        string[] memberInfo = csvCustLines.FirstOrDefault(line => line.Split(',')[1] == orderInfo[1])?.Split(',');
+
+        if (memberInfo != null && (memberInfo[3] == "Gold" || memberInfo[3] == "Ordinary"))
+        {
+            Console.WriteLine("{0,-2}  {1,-8}  {2,-15}  {3,-20}  {4,-18}",
+                orderInfo[0], memberInfo[0], orderInfo[2], orderInfo[3], memberInfo[3]);
+        }
+    }
+    Console.WriteLine("");
 }
 
 
